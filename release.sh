@@ -1,10 +1,15 @@
 #!/bin/bash
 
 REPO=${REPO:-rykren}
-TAG=${TAG:-latest}
+TAG=${TAG:-v3.23}
 IMAGE=${IMAGE:-cni}
 PUSH=${PUSH:-false}
-arch=(amd64 arm64 armv7 ppc64le s390x)
+arch=(amd64 arm64 armv7 ppc64le s390x) # 
+
+docker builder prune
+# cd ./calico
+rm -r ./cni-plugin/bin
+
 
 # build docker IMAGE
 for i in "${arch[@]}"
@@ -28,6 +33,8 @@ if [ "$PUSH" = true ]; then
       manifest+=" "
    done
 
+   echo $manifest
+   docker manifest rm $REPO/$IMAGE:$TAG
    docker manifest create $REPO/$IMAGE:$TAG $manifest --amend
    docker manifest push $REPO/$IMAGE:$TAG
 fi
